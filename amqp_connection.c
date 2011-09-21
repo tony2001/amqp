@@ -306,6 +306,62 @@ PHP_METHOD(amqp_connection_class, connect)
 
 /* }}} */
 
+/* {{{ proto amqp::setReadTimeout()
+set read timeout for the connection */
+PHP_METHOD(amqp_connection_class, setReadTimeout)
+{
+	zval *id;
+	amqp_connection_object *amqp_connection;
+	long timeout = 0;
+	int ret;
+
+	/* Try to pull amqp object out of method params */
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O|l", &id, amqp_connection_class_entry, &timeout) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	/* Get the connection object out of the store */
+	amqp_connection = (amqp_connection_object *)zend_object_store_get_object(id TSRMLS_CC);
+
+	if (amqp_connection->conn) {
+		ret = amqp_socket_set_read_timeout(amqp_get_sockfd(amqp_connection->conn), timeout);
+		if (!ret) {
+			RETURN_TRUE;
+		}
+	}
+	RETURN_FALSE;
+}
+
+/* }}} */
+
+/* {{{ proto amqp::setWriteTimeout()
+set write timeout for the connection */
+PHP_METHOD(amqp_connection_class, setWriteTimeout)
+{
+	zval *id;
+	amqp_connection_object *amqp_connection;
+	long timeout = 0;
+	int ret;
+
+	/* Try to pull amqp object out of method params */
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O|l", &id, amqp_connection_class_entry, &timeout) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	/* Get the connection object out of the store */
+	amqp_connection = (amqp_connection_object *)zend_object_store_get_object(id TSRMLS_CC);
+
+	if (amqp_connection->conn) {
+		ret = amqp_socket_set_write_timeout(amqp_get_sockfd(amqp_connection->conn), timeout);
+		if (!ret) {
+			RETURN_TRUE;
+		}
+	}
+	RETURN_FALSE;
+}
+
+/* }}} */
+
 /* {{{ proto amqp::disconnect()
 destroy amqp connection */
 PHP_METHOD(amqp_connection_class, disconnect)

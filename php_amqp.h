@@ -24,7 +24,7 @@
 #ifndef PHP_AMQP_H
 #define PHP_AMQP_H
 
-
+#include <amqp.h>
 
 /* Add pseudo refcount macros for PHP version < 5.3 */
 #ifndef Z_REFCOUNT_PP

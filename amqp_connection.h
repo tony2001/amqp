@@ -42,6 +42,8 @@ PHP_METHOD(amqp_connection_class, setPassword);
 PHP_METHOD(amqp_connection_class, setHost);
 PHP_METHOD(amqp_connection_class, setPort);
 PHP_METHOD(amqp_connection_class, setVhost);
+PHP_METHOD(amqp_connection_class, setReadTimeout);
+PHP_METHOD(amqp_connection_class, setWriteTimeout);
 
 
 /*
