@@ -48,7 +48,7 @@
  *	handles connecting to amqp
  *	called by connect() and reconnect()
  */
-void php_amqp_connect(amqp_connection_object *amqp_connection TSRMLS_DC)
+void php_amqp_connect(amqp_connection_object *amqp_connection, long timeout TSRMLS_DC)
 {
 	char str[256];
 	char ** pstr = (char **) &str;
@@ -57,7 +57,7 @@ void php_amqp_connect(amqp_connection_object *amqp_connection TSRMLS_DC)
 	/* create the connection */
 	amqp_connection->conn = amqp_new_connection();
 
-	amqp_connection->fd = amqp_open_socket(amqp_connection->host, amqp_connection->port);
+	amqp_connection->fd = amqp_open_socket(amqp_connection->host, amqp_connection->port, timeout);
 
 	if (amqp_connection->fd < 1) {
 		/* Start ignoring SIGPIPE */
@@ -289,16 +289,17 @@ PHP_METHOD(amqp_connection_class, connect)
 {
 	zval *id;
 	amqp_connection_object *amqp_connection;
+	long timeout = 0;
 
 	/* Try to pull amqp object out of method params */
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O", &id, amqp_connection_class_entry) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O|l", &id, amqp_connection_class_entry, &timeout) == FAILURE) {
 		RETURN_FALSE;
 	}
 
 	/* Get the connection object out of the store */
 	amqp_connection = (amqp_connection_object *)zend_object_store_get_object(id TSRMLS_CC);
 
-	php_amqp_connect(amqp_connection TSRMLS_CC);
+	php_amqp_connect(amqp_connection, timeout TSRMLS_CC);
 	/* @TODO: return connection success or failure */
 	RETURN_TRUE;
 }
@@ -311,9 +312,10 @@ PHP_METHOD(amqp_connection_class, disconnect)
 {
 	zval *id;
 	amqp_connection_object *amqp_connection;
+	long timeout = 0;
 
 	/* Try to pull amqp object out of method params */
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O", &id, amqp_connection_class_entry) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O|l", &id, amqp_connection_class_entry, &timeout) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -333,9 +335,10 @@ PHP_METHOD(amqp_connection_class, reconnect)
 {
 	zval *id;
 	amqp_connection_object *amqp_connection;
+	long timeout = 0;
 
 	/* Try to pull amqp object out of method params */
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O", &id, amqp_connection_class_entry) == FAILURE) {
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "O|l", &id, amqp_connection_class_entry, &timeout) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -345,7 +348,7 @@ PHP_METHOD(amqp_connection_class, reconnect)
 	if (amqp_connection->is_connected) {
 		php_amqp_disconnect(amqp_connection);
 	}
-	php_amqp_connect(amqp_connection TSRMLS_CC);
+	php_amqp_connect(amqp_connection, timeout TSRMLS_CC);
 	/* @TODO: return the success or failure of connect */
 	RETURN_TRUE;
 }
